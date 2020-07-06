@@ -17,12 +17,11 @@ package pretty
 import (
 	"bytes"
 	"fmt"
+	"github.com/army-of-one/godebug/diff"
 	"io"
 	"net"
 	"reflect"
 	"time"
-
-	"github.com/kylelemons/godebug/diff"
 )
 
 // A Config represents optional configuration parameters for formatting.
@@ -185,4 +184,22 @@ func (cfg *Config) Compare(a, b interface{}) string {
 	diffCfg := *cfg
 	diffCfg.Diffable = true
 	return diff.Diff(cfg.Sprint(a), cfg.Sprint(b))
+}
+
+// Compare returns a string containing a line-by-line unified diff of the
+// values in got and want according to the cfg.
+//
+// Each line in the output is prefixed with '+', '-', or ' ' to indicate which
+// side it's from. Lines from the a side are marked with '-', lines from the
+// b side are marked with '+' and lines that are the same on both sides are
+// marked with ' '.
+//
+// The comparison is based on the intentionally-untyped output of Print, and as
+// such this comparison is pretty forviving.  In particular, if the types of or
+// types within in a and b are different but have the same representation,
+// Compare will not indicate any differences between them.
+func (cfg *Config) CompareWithStatus(a, b interface{}) (string, bool) {
+	diffCfg := *cfg
+	diffCfg.Diffable = true
+	return diff.DiffWithStatus(cfg.Sprint(a), cfg.Sprint(b))
 }

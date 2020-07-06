@@ -16,10 +16,10 @@ package pretty_test
 
 import (
 	"fmt"
+	"github.com/army-of-one/godebug/pretty"
 	"net"
 	"reflect"
 
-	"github.com/kylelemons/godebug/pretty"
 )
 
 func ExampleConfig_Sprint() {

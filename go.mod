@@ -1,3 +1,3 @@
-module github.com/kylelemons/godebug
+module github.com/army-of-one/godebug
 
-go 1.11
+go 1.14
