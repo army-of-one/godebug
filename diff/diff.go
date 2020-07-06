@@ -43,23 +43,43 @@ func Diff(A, B string) string {
 	return Render(DiffChunks(aLines, bLines))
 }
 
+// Diff returns a string containing a line-by-line unified diff of the linewise
+// changes required to make A into B.  Each line is prefixed with '+', '-', or
+// ' ' to indicate if it should be added, removed, or is correct respectively.
+func DiffWithStatus(A, B string) (string, bool) {
+	aLines := strings.Split(A, "\n")
+	bLines := strings.Split(B, "\n")
+	return RenderWithStatus(DiffChunks(aLines, bLines))
+}
+
 // Render renders the slice of chunks into a representation that prefixes
 // the lines with '+', '-', or ' ' depending on whether the line was added,
 // removed, or equal (respectively).
 func Render(chunks []Chunk) string {
+	rendered, _ := RenderWithStatus(chunks)
+	return rendered
+}
+
+// Render renders the slice of chunks into a representation that prefixes
+// the lines with '+', '-', or ' ' depending on whether the line was added,
+// removed, or equal (respectively).
+func RenderWithStatus(chunks []Chunk) (string, bool) {
+	isDifferent := false
 	buf := new(strings.Builder)
 	for _, c := range chunks {
 		for _, line := range c.Added {
+			isDifferent = true
 			fmt.Fprintf(buf, "+%s\n", line)
 		}
 		for _, line := range c.Deleted {
+			isDifferent = true
 			fmt.Fprintf(buf, "-%s\n", line)
 		}
 		for _, line := range c.Equal {
 			fmt.Fprintf(buf, " %s\n", line)
 		}
 	}
-	return strings.TrimRight(buf.String(), "\n")
+	return strings.TrimRight(buf.String(), "\n"), isDifferent
 }
 
 // DiffChunks uses an O(D(N+M)) shortest-edit-script algorithm
